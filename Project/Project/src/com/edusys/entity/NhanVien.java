@@ -1,10 +1,13 @@
 package com.edusys.entity;
 
 public class NhanVien {
+
     private String maNV;
     private String matKhau;
     private String hoTen;
     private boolean vaiTro = false;
+    private String trinhDo;
+    private String gioiTinh;
 
     @Override
     public String toString() {
@@ -41,5 +44,29 @@ public class NhanVien {
 
     public void setVaiTro(boolean vaiTro) {
         this.vaiTro = vaiTro;
+    }
+
+    public String getTrinhDo() {
+        return trinhDo;
+    }
+
+    public void setTrinhDo(String trinhDo) {
+        this.trinhDo = trinhDo;
+    }
+
+    public String getGioiTinh() {
+        return gioiTinh;
+    }
+
+    public void setGioiTinh(String gioiTinh) {
+        this.gioiTinh = gioiTinh;
+    }
+
+    public String getMatKhauHiden() {
+        String mk = "";
+        for (int i = 0; i < this.getMatKhau().length(); i++) {
+            mk += "*";
+        }
+        return mk;
     }
 }

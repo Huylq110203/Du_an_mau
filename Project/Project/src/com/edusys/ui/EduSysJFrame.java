@@ -594,7 +594,7 @@ public class EduSysJFrame extends javax.swing.JFrame {
     }
     void openNhanVien(){
         if(Auth.isLogin()){
-            new NhanVienJDialog(this, true).setVisible(true);
+            new NhanVienJDialog1(this, true).setVisible(true);
         }
         else{
             MsgBox.alert(this, "Vui lòng đăng nhập!");

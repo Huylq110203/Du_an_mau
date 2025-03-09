@@ -81,10 +81,26 @@ public class NguoiHocDAO extends EduSysDAO<NguoiHoc, String>{
         return list;
     }
     
-    public List<NguoiHoc> selectByKeyword(String keyword){
-        String sql="SELECT * FROM NguoiHoc WHERE HoTen LIKE ?";
-        return this.selectBySql(sql, "%"+keyword+"%");
-    }
+    public List<NguoiHoc> selectByKeyword(String keyword) {
+    String sql = "SELECT * FROM NguoiHoc WHERE "
+               + "(MaNH LIKE ? OR ? = '') OR "
+               + "(HoTen LIKE ? OR ? = '') OR "
+               + "(GioiTinh LIKE ? OR ? = '') OR "
+               + "(NgaySinh LIKE ? OR ? = '') OR "
+               + "(DienThoai LIKE ? OR ? = '') OR "
+               + "(Email LIKE ? OR ? = '') OR "
+               + "(MaNV LIKE ? OR ? = '') OR "
+               + "(NgayDK LIKE ? OR ? = '')";
+    
+    // Tạo các điều kiện tìm kiếm
+    String searchPattern = "%" + keyword + "%";
+    
+    return this.selectBySql(sql, searchPattern, keyword, searchPattern, keyword, 
+                            searchPattern, keyword, searchPattern, keyword, 
+                            searchPattern, keyword, searchPattern, keyword, 
+                            searchPattern, keyword, searchPattern, keyword);
+}
+
 
     public List<NguoiHoc> selectNotInCourse(int makh, String keyword) {
         String sql="SELECT * FROM NguoiHoc "

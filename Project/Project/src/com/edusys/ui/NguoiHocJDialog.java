@@ -11,6 +11,8 @@ import com.edusys.utils.Auth;
 import com.edusys.utils.MsgBox;
 import com.edusys.utils.XDate;
 import com.edusys.utils.XImage;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.Charset;
@@ -18,6 +20,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JFileChooser;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -50,6 +54,7 @@ public class NguoiHocJDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         tabs = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -111,10 +116,17 @@ public class NguoiHocJDialog extends javax.swing.JDialog {
 
         jPanel4.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
 
+        buttonGroup1.add(rdoNam);
         rdoNam.setSelected(true);
         rdoNam.setText("Nam");
+        rdoNam.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rdoNamActionPerformed(evt);
+            }
+        });
         jPanel4.add(rdoNam);
 
+        buttonGroup1.add(rdoNu);
         rdoNu.setText("Nữ");
         jPanel4.add(rdoNu);
 
@@ -440,6 +452,10 @@ public class NguoiHocJDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_btnImportNguoiHocActionPerformed
 
+    private void rdoNamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoNamActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rdoNamActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -493,6 +509,7 @@ public class NguoiHocJDialog extends javax.swing.JDialog {
     private javax.swing.JButton btnThem;
     private javax.swing.JButton btnTimKiem;
     private javax.swing.JButton btnXoa;
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -528,37 +545,81 @@ public class NguoiHocJDialog extends javax.swing.JDialog {
     int row = -1;
     
     void init() {
-        setLocationRelativeTo(null);
+      setLocationRelativeTo(null);
         this.fillTable();
         this.row = -1;
         this.updateStatus();
-    }
-        
-    void fillTable() {
-        DefaultTableModel model = (DefaultTableModel) tblNguoiHoc.getModel();
-        model.setRowCount(0);
-        try {
-            String keyword = txtTimKiem.getText();
-            List<NguoiHoc> list = dao.selectByKeyword(keyword);
-            for (NguoiHoc nh : list) {
-                Object[] row = {
-                    nh.getMaNH(),
-                    nh.getHoTen(),
-                    nh.getGioiTinh()?"Nam":"Nữ",
-                    XDate.toString(nh.getNgaySinh(), "MM/dd/yyyy"),
-                    nh.getDienThoai(),
-                    nh.getEmail(),
-                    nh.getMaNV(),
-                    XDate.toString(nh.getNgayDK(), "MM/dd/yyyy")
-                };
-                model.addRow(row);
+        txtNgaySinh.setText("mm/dd/yyyy");
+    txtNgaySinh.setForeground(new java.awt.Color(153, 153, 153)); // Màu xám
+
+    txtNgaySinh.addFocusListener(new java.awt.event.FocusAdapter() {
+        @Override
+        public void focusGained(java.awt.event.FocusEvent evt) {
+            if (txtNgaySinh.getText().equals("mm/dd/yyyy")) {
+                txtNgaySinh.setText("");
+                txtNgaySinh.setForeground(new java.awt.Color(0, 0, 0)); // Màu chữ đen
             }
-        } 
-        catch (Exception e) {
-            System.out.print(e.getMessage());
-            MsgBox.alert(this, "Lỗi truy vấn dữ liệu!");
         }
+
+        @Override
+        public void focusLost(java.awt.event.FocusEvent evt) {
+            if (txtNgaySinh.getText().trim().isEmpty()) {
+                txtNgaySinh.setText("mm/dd/yyyy");
+                txtNgaySinh.setForeground(new java.awt.Color(153, 153, 153)); // Màu xám
+            }
+        }
+    });
+        
+        txtTimKiem.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+        public void insertUpdate(javax.swing.event.DocumentEvent e) {
+            timKiem();
+        }
+
+        public void removeUpdate(javax.swing.event.DocumentEvent e) {
+            timKiem();
+        }
+
+        public void changedUpdate(javax.swing.event.DocumentEvent e) {
+            timKiem();
+        }
+    });
+
+
+}
+
+    void fillTable() {
+    DefaultTableModel model = (DefaultTableModel) tblNguoiHoc.getModel();
+    model.setRowCount(0);
+    try {
+        String keyword = txtTimKiem.getText().trim(); // Lấy từ khóa tìm kiếm
+
+        // Truy vấn dữ liệu từ database với từ khóa tìm kiếm
+        List<NguoiHoc> list = dao.selectByKeyword(keyword);
+        
+        // Cập nhật bảng với kết quả tìm kiếm
+        for (NguoiHoc nh : list) {
+            Object[] row = {
+                nh.getMaNH(),
+                nh.getHoTen(),
+                nh.getGioiTinh() ? "Nam" : "Nữ",
+                XDate.toString(nh.getNgaySinh(), "MM/dd/yyyy"),
+                nh.getDienThoai(),
+                nh.getEmail(),
+                nh.getMaNV(),
+                XDate.toString(nh.getNgayDK(), "MM/dd/yyyy")
+            };
+            model.addRow(row);
+        }
+    } catch (Exception e) {
+        System.out.print(e.getMessage());
+        MsgBox.alert(this, "Lỗi truy vấn dữ liệu!");
     }
+}
+
+   
+    
+
+
 
     void insert(){
         NguoiHoc model = getForm();
@@ -603,12 +664,19 @@ public class NguoiHocJDialog extends javax.swing.JDialog {
         }       
     }
 
-    void clearForm(){
-        NguoiHoc nh = new NguoiHoc();
-        nh.setMaNV(Auth.user.getMaNV());
-        nh.setNgayDK(new Date());
-        this.setForm(nh);
-    }
+    void clearForm() {
+    NguoiHoc nh = new NguoiHoc();
+    nh.setMaNV(Auth.user.getMaNV());
+    nh.setNgayDK(new Date());
+    nh.setNgaySinh(null); // Đặt ngày sinh là null (hoặc bạn có thể để giá trị nào đó nếu muốn)
+    this.setForm(nh);
+
+    // Đặt lại placeholder "MM/dd/yyyy" cho ô ngày sinh
+    txtNgaySinh.setText("MM/dd/yyyy");
+    rdoNam.setSelected(false);
+    rdoNu.setSelected(false);
+}
+
 
     void edit() {
         String manh = (String) tblNguoiHoc.getValueAt(this.row, 0);
@@ -618,34 +686,53 @@ public class NguoiHocJDialog extends javax.swing.JDialog {
         tabs.setSelectedIndex(0);
     }
 
-    void setForm(NguoiHoc nh){
-        txtMaNH.setText(nh.getMaNH());
-        txtHoTen.setText(nh.getHoTen());
-        if(nh.getGioiTinh()){
-            rdoNam.setSelected(true);
-        }
-        else{
-            rdoNu.setSelected(true);
-        }
-        txtNgaySinh.setText(XDate.toString(nh.getNgaySinh(), "MM/dd/yyyy"));
-        txtDienThoai.setText(nh.getDienThoai());
-        txtEmail.setText(nh.getEmail());
-        txtGhiChu.setText(nh.getGhiChu());
+   void setForm(NguoiHoc nh){
+    txtMaNH.setText(nh.getMaNH());
+    txtHoTen.setText(nh.getHoTen());
+
+    if (nh.getGioiTinh()) {
+        rdoNam.setSelected(true);
+    } else {
+        rdoNu.setSelected(true);
     }
 
-    NguoiHoc getForm() {
-        NguoiHoc nh = new NguoiHoc();
-        nh.setMaNH(txtMaNH.getText());
-        nh.setHoTen(txtHoTen.getText());
-        nh.setGioiTinh(rdoNam.isSelected());
-        nh.setNgaySinh(XDate.toDate(txtNgaySinh.getText(), "MM/dd/yyyy"));
-        nh.setDienThoai(txtDienThoai.getText());
-        nh.setEmail(txtEmail.getText());
-        nh.setGhiChu(txtGhiChu.getText());
-        nh.setMaNV(Auth.user.getMaNV());
-        nh.setNgayDK(new Date());
-        return nh;
+    // Kiểm tra nếu ngày sinh đã có thì hiển thị ngày sinh thật, ngược lại hiển thị "MM/dd/yyyy"
+    if (nh.getNgaySinh() != null) {
+        // Chuyển ngày sinh thành chuỗi định dạng "MM/dd/yyyy"
+        txtNgaySinh.setText(XDate.toString(nh.getNgaySinh(), "MM/dd/yyyy"));
+    } else {
+        // Nếu ngày sinh chưa có thì hiển thị placeholder "MM/dd/yyyy"
+        txtNgaySinh.setText("MM/dd/yyyy");
     }
+    
+    txtDienThoai.setText(nh.getDienThoai());
+    txtEmail.setText(nh.getEmail());
+    txtGhiChu.setText(nh.getGhiChu());
+}
+
+
+
+
+    NguoiHoc getForm() {
+    NguoiHoc nh = new NguoiHoc();
+    nh.setMaNH(txtMaNH.getText());
+    nh.setHoTen(txtHoTen.getText());
+    nh.setGioiTinh(rdoNam.isSelected());
+
+    // Kiểm tra xem ngày sinh có phải là placeholder hay không
+    if (!txtNgaySinh.getText().equals("MM/dd/yyyy")) {
+        nh.setNgaySinh(XDate.toDate(txtNgaySinh.getText(), "MM/dd/yyyy"));
+    } else {
+        nh.setNgaySinh(null); // Nếu không có ngày sinh, set là null
+    }
+
+    nh.setDienThoai(txtDienThoai.getText());
+    nh.setEmail(txtEmail.getText());
+    nh.setGhiChu(txtGhiChu.getText());
+    nh.setMaNV(Auth.user.getMaNV());
+    nh.setNgayDK(new Date());
+    return nh;
+}
         
     void first(){
         this.row = 0;
@@ -686,11 +773,12 @@ public class NguoiHocJDialog extends javax.swing.JDialog {
     }
 
     private void timKiem() {
-        this.fillTable();
-        this.clearForm();
-        this.row = -1;
-        this.updateStatus();
-    }
+    this.fillTable();
+    this.clearForm();
+    this.row = -1;
+    this.updateStatus();
+}
+
     
     private File chonFileExcelImportNguoiHoc() {
         File excelFile = null;
@@ -749,4 +837,7 @@ public class NguoiHocJDialog extends javax.swing.JDialog {
 			e.printStackTrace();
 		}
     }
+    
 }
+
+

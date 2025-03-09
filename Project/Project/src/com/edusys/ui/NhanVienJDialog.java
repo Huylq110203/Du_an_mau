@@ -10,6 +10,7 @@ import com.edusys.entity.NhanVien;
 import com.edusys.utils.Auth;
 import com.edusys.utils.MsgBox;
 import java.util.List;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -420,6 +421,8 @@ public class NhanVienJDialog extends javax.swing.JDialog {
         setLocationRelativeTo(null); // đưa cửa sổ ra giữa màn hình
         this.fillTable(); // đổ dữ liệu nhân viên vào bảng
         this.updateStatus(); // cập nhật trạng thái form
+        
+
     }
     void fillTable() {
         DefaultTableModel model = (DefaultTableModel) tblNhanVien.getModel();
@@ -427,9 +430,10 @@ public class NhanVienJDialog extends javax.swing.JDialog {
         try {
             List<NhanVien> list = dao.selectAll();
             for (NhanVien nv : list) {
+                String maskedPassword = "*".repeat(nv.getMatKhau().length());
                 Object[] row = {
                     nv.getMaNV(),
-                    nv.getMatKhau(),
+                    maskedPassword,
                     nv.getHoTen(),
                     nv.getVaiTro()?"Trưởng phòng":"Nhân viên"
                 };
@@ -580,6 +584,8 @@ public class NhanVienJDialog extends javax.swing.JDialog {
         return false;
     }
     
-   
-    
+  
 }
+
+    
+
